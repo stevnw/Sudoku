@@ -9,7 +9,7 @@ pygame.mixer.init()
 # Constants
 WIDTH, HEIGHT = 540, 540
 CELL_SIZE = WIDTH // 9
-BG_COLOR = (211, 176, 227) 
+BG_COLOR = (211, 176, 227)
 #MENU_COLOR = (173, 216, 230) # Light blue, keep this for now??
 MENU_COLOR = (211, 176, 227) # Light purple
 CELL_COLOR = (255, 255, 255) # White
@@ -110,20 +110,53 @@ def fill_grid(grid): # Recursively fill the grid w/ backtracking shit
             grid[row][col] = 0
     return False
 
+def solve_sudoku(grid): # This function solves them to make sure there is only one possible solution - AFAIK it is working better now!!
+    find = find_empty(grid)
+    if not find:
+        return 1 # Found one solution
+
+    row, col = find
+    solutions_count = 0
+
+    for num in range(1, 10):
+        if is_valid(grid, row, col, num):
+            grid[row][col] = num
+            solutions_count += solve_sudoku(grid)
+            grid[row][col] = 0 # Backtrack
+
+            if solutions_count > 1: # If we find more than one solution, no need to continue
+                break
+    return solutions_count
+
 def generate_sudoku(cells_to_remove=45): # Poops out a new puzzle
     grid = [[0 for _ in range(9)] for _ in range(9)]
-    fill_grid(grid)
+    fill_grid(grid) # New solved grid!
+
+    # Create a list of all cell coordinates
+    all_cells = [(r, c) for r in range(9) for c in range(9)]
+    random.shuffle(all_cells)
+
     puzzle = [row[:] for row in grid]
     removed_count = 0
-    attempts = 0
-    while removed_count < cells_to_remove and attempts < 500:
-        row, col = random.randint(0, 8), random.randint(0, 8)
-        if puzzle[row][col] != 0:
-            puzzle[row][col] = 0
+    
+    for r, c in all_cells:
+        if removed_count >= cells_to_remove:
+            break
+
+        original_value = puzzle[r][c]
+        puzzle[r][c] = 0
+
+        temp_grid = [row[:] for row in puzzle]
+        
+        # Check for if it still has a unique solution after removal of numbers
+        if solve_sudoku(temp_grid) == 1:
             removed_count += 1
-        attempts += 1
-    #print(f"Generated a new puzzle, removed {removed_count} cells.") # debugging line, remove?
+        else:
+            puzzle[r][c] = original_value # If not unique, put the number back lol
+            
+    #print(f"Generated a new puzzle, removed {removed_count} cells.")
     return puzzle
+
 
 # Gameplay Logic
 
@@ -176,9 +209,9 @@ def load_sounds(language):
                     audio_path = os.path.join('res', row[2].strip())
                     if os.path.exists(audio_path):
                         try:
-                           loaded_sounds.append(pygame.mixer.Sound(audio_path))
+                            loaded_sounds.append(pygame.mixer.Sound(audio_path))
                         except pygame.error as e:
-                           print(f"Error loading sound {audio_path}: {e}")
+                            print(f"Error loading sound {audio_path}: {e}")
                     else:
                         print(f"Missing audio: {audio_path}")
     except FileNotFoundError:
@@ -234,7 +267,7 @@ def create_win_surface():
     
     win_surface_cached = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
     
-    win_surface_cached.fill((173, 216, 230, 180)) # light blue for now? Fight swap to purple... Nah
+    win_surface_cached.fill((173, 216, 230, 180))
     
     win_text_surface = win_font.render("You Win!", True, TITLE_COLOR)
     win_rect = win_text_surface.get_rect(center=(WIDTH//2, HEIGHT//2 - 50))
@@ -318,7 +351,7 @@ while running:
                             win_surface_cached = None
 
             elif current_state == WIN_SCREEN:
-                 if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN:
                     new_board = generate_sudoku()
                     sample_board.clear(); sample_board.extend(new_board)
                     new_editable = [[cell == 0 for cell in row] for row in sample_board]
