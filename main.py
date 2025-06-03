@@ -31,6 +31,7 @@ current_state = START_SCREEN
 languages = [
     {'code': 'zh', 'name': '中文'},
     {'code': 'jp', 'name': '日本語'},
+    {'code': 'de', 'name': 'Deutsch'},
     {'code': 'ko', 'name': '한국어'}
 ]
 selected_lang = 0
