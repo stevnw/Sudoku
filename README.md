@@ -1,5 +1,5 @@
 # Sudoku
-PyGame implementation of Sudoku - with audio in Mandarin, Japanese and Korean.
+PyGame implementation of Sudoku - with audio in Mandarin, German, Japanese and Korean.
 
 The aim of this is to be a fun way to learn 1 - 9 in each of these languages. 
 
