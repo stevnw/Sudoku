@@ -32,7 +32,8 @@ languages = [
     {'code': 'zh', 'name': '中文'},
     {'code': 'jp', 'name': '日本語'},
     {'code': 'de', 'name': 'Deutsch'},
-    {'code': 'ko', 'name': '한국어'}
+    {'code': 'ko', 'name': '한국어'},
+    {'code': 'none', 'name': 'No Audio'}
 ]
 selected_lang = 0
 
@@ -200,6 +201,9 @@ def check_win(grid): # Win checker :D
     return True
 
 def load_sounds(language):
+    if language == 'none':
+        return []
+    
     loaded_sounds = []
     csv_path = os.path.join('res', f'{language}.csv')
     try:
@@ -225,7 +229,12 @@ def draw_start_screen():
     title_text_surface = title_font.render("Sudoku", True, TITLE_COLOR)
     title_rect = title_text_surface.get_rect(center=(WIDTH//2, HEIGHT//2 - 100))
     WIN.blit(title_text_surface, title_rect)
-    name_text_surface = cjk_font.render(lang['name'], True, TEXT_COLOR)
+    
+    if lang['code'] == 'none':
+        name_text_surface = menu_font.render(lang['name'], True, TEXT_COLOR)
+    else:
+        name_text_surface = cjk_font.render(lang['name'], True, TEXT_COLOR)
+    
     name_rect = name_text_surface.get_rect(center=(WIDTH//2, HEIGHT//2 + 10))
     WIN.blit(name_text_surface, name_rect)
     instr_text = menu_font.render("<- -> to select | Enter to start", True, TEXT_COLOR)
